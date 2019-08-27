@@ -1,7 +1,3 @@
-variables:
-  BuildPlatform: 'any cpu'
-  BuildConfiguration: 'release'
-
 resources:
   repositories:
   - repository: self
