@@ -1,0 +1,534 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "instanceBaseName": {
+            "type": "string",
+            "metadata": {
+                "description": "The base name for all created resources."
+            }
+        },
+        "storageConnectionString": {
+            "type": "securestring", 
+            "metadata": {
+                "description": "The connection string for a storage account to store azure webjob data on"
+            }
+        },
+        "slackChannelName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the slack channel (without the #) to send Azure Monitor alerts to"
+            }
+        },
+        "slackWebHookToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The token (ie: everything after https://hooks.slack.com/services/) for the incoming webhook on Slack."
+            }
+        },
+        "environment": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the environment we are deploying to"
+            }
+        },
+        "enableMonitoring": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable the monitoring so that alerts get fired"
+            }
+        }
+    },
+    "variables": {
+        "BuildingBlocksDfcBaseUrl": "https://raw.githubusercontent.com/SkillsFundingAgency/dfc-devops/master/ArmTemplates/",
+        "ActionGroupName": "[concat(parameters('instanceBaseName'), '-actgrp')]",
+        "lowerEnvironment": "[toLower(parameters('environment'))]",
+        "appInsightsInstances": [
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-apprent-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), 'prov-apprent-ai')]"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-cfl-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-cfl-ai')]"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-course-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-course-ai')]"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ctxt-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ctxt-ai')]"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fc-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fc-ai')]"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fp-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fp-ai')]"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-lars-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-lars-ai')]"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ref-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ref-ai')]"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-te-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-te-ai')]"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ukrlp-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ukrlp-ai')]"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-venue-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-venue-ai')]"
+            }
+        ],
+        "MetricsToAlertUpon": [
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-apprent-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), 'prov-apprent-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Http5xx",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "50",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-apprent-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), 'prov-apprent-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "FunctionExecutionCount",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "1000",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-cfl-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-cfl-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Http5xx",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "50",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-cfl-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-cfl-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "FunctionExecutionCount",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "1000",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-course-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-course-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Http5xx",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "50",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-course-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-course-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "FunctionExecutionCount",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "1000",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ctxt-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ctxt-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Http5xx",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "50",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ctxt-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ctxt-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "FunctionExecutionCount",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "1000",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fc-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fc-as')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Http5xx",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "50",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fc-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fc-as')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "AverageResponseTime",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "2",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fc-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fc-as')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Requests",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "1000",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fp-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fp-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Http5xx",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "50",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fp-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-fp-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "FunctionExecutionCount",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "1000",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-lars-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-lars-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Http5xx",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "50",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-lars-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-lars-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "FunctionExecutionCount",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "1000",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ref-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ref-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Http5xx",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "50",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ref-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ref-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "FunctionExecutionCount",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "1000",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-te-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-te-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Http5xx",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "50",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-te-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-te-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "FunctionExecutionCount",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "1000",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ukrlp-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ukrpl-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Http5xx",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "50",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ukrlp-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ukrlp-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "FunctionExecutionCount",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "1000",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-venue-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-venue-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "Http5xx",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "50",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-venue-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-venue-fa')]",
+                "ResourceType": "Microsoft.Web/sites",
+                "MetricName": "FunctionExecutionCount",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "1000",
+                "TimeWindow": "PT5M"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-asp')]",
+                "ResourceType": "Microsoft.Web/serverFarms",
+                "MetricName": "CpuPercentage",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "75",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-rg')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-asp')]",
+                "ResourceType": "Microsoft.Web/serverFarms",
+                "MetricName": "MemoryPercentage",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "75",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            }
+        ]
+    },
+    "resources": [
+        {
+            "name": "ppAzureMonitorSlackFunction",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-10",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/slack-alerts-function-app.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "instanceBaseName":  {
+                        "value": "[parameters('instanceBaseName')]"
+                    },
+                    "storageConnectionString": {
+                        "value": "[parameters('storageConnectionString')]"
+                    },
+                    "slackChannel": {
+                        "value": "[parameters('slackChannelName')]"
+                    },
+                    "slackWebHookToken": {
+                        "value": "[parameters('slackWebHookToken')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "[variables('ActionGroupName')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-10",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/action-groups.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "actionGroupName": {
+                        "value": "[variables('ActionGroupName')]"
+                    },
+                    "enabled": {
+                        "value": "[parameters('enableMonitoring')]"
+                    },
+                    "webHookUrl": {
+                        "value": "[reference('ppAzureMonitorSlackFunction').outputs.webHookUrl.value]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "ppAzureMonitorSlackFunction"
+            ]
+        },
+        {
+            "apiVersion": "2019-05-10",
+            "name": "[concat(variables('appInsightsInstances')[copyIndex()].ResourceName, '-', variables('appInsightsInstances')[copyIndex()].MetricName)]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+              "templateLink": {
+                "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/metric-alerts.json')]",
+                "contentVersion": "1.0.0.0"
+              },
+                "parameters": {
+                    "enabled": {
+                        "value": "[parameters('enableMonitoring')]"
+                    },
+                    "alertName": {
+                        "value": "[concat(variables('MetricsToAlertUpon')[copyindex()].ResourceName, '-metric-', tolower(variables('MetricsToAlertUpon')[copyIndex()].MetricName))]"
+                    },
+                    "alertSeverity": {
+                        "value": 3
+                    },
+                    "metricName": {
+                        "value": "[variables('MetricsToAlertUpon')[copyIndex()].MetricName]"
+                    },
+                    "operator": {
+                        "value": "[variables('MetricsToAlertUpon')[copyIndex()].Operator]"
+                    },
+                    "threshold": {
+                        "value": "[variables('MetricsToAlertUpon')[copyIndex()].Threshold]"
+                    },
+                    "aggregation": {
+                        "value": "[variables('MetricsToAlertUpon')[copyIndex()].Aggregation]"
+                    },
+                    "windowSize": {
+                        "value": "[variables('MetricsToAlertUpon')[copyIndex()].TimeWindow]"
+                    },
+                    "evaluationFrequency": {
+                        "value": "PT1M"
+                    },
+                    "actionGroupName": {
+                        "value": "[variables('ActionGroupName')]"
+                    },
+                    "resourceId": {
+                        "value": "[resourceId(variables('MetricsToAlertUpon')[copyIndex()].ResourceGroupName, variables('MetricsToAlertUpon')[copyIndex()].ResourceType, variables('MetricsToAlertUpon')[copyIndex()].ResourceName)]"
+                    }
+                }
+            },
+            "copy": {
+                "name": "AllResourcesToMonitorCopy",
+                "count": "[length(variables('MetricsToAlertUpon'))]"
+            },
+            "dependsOn": [
+                "[variables('ActionGroupName')]"
+            ]
+        },
+        {
+            "apiVersion": "2019-05-10",
+            "name": "[concat(variables('appInsightsInstances')[copyIndex()].ResourceName, '-exceptions')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/metric-alerts.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "enabled": {
+                        "value": "[parameters('enableMonitoring')]"
+                    },
+                    "alertName": {
+                        "value": "[concat(variables('appInsightsInstances')[copyindex()].ResourceName, '-metric-', tolower(variables('appInsightsInstances')[copyIndex()].MetricName))]"
+                    },
+                    "alertSeverity": {
+                        "value": 3
+                    },
+                    "metricName": {
+                        "value": "exceptions/count"
+                    },
+                    "operator": {
+                        "value": "GreaterThanOrEqual"
+                    },
+                    "threshold": {
+                        "value": "0"
+                    },
+                    "aggregation": {
+                        "value": "Average"
+                    },
+                    "windowSize": {
+                        "value": "PT5M"
+                    },
+                    "evaluationFrequency": {
+                        "value": "PT1M"
+                    },
+                    "actionGroupName": {
+                        "value": "[variables('ActionGroupName')]"
+                    },
+                    "resourceId": {
+                        "value": "[resourceId(variables('appInsightsInstances')[copyIndex()].ResourceGroupName, 'Microsoft.Insights/Components', variables('MetricsToAlertUpon')[copyIndex()].ResourceName)]"
+                    }
+                }
+            },
+            "copy": {
+                "name": "AppInsightsToMonitorCopy",
+                "count": "[length(variables('appInsightsInstances'))]"
+            }
+        },
+        {
+            "apiVersion": "2019-05-10",
+            "name": "[concat(variables('appInsightsInstances')[copyIndex()].ResourceName, '-failure-anomaly-v2')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/failure-anomaly-rule.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "alertName": {
+                        "value": "[variables('appInsightsInstances')[copyIndex().ResourceName]]"
+                    },
+                    "enabled": {
+                        "value": "[parameters('enableMonitoring')]"
+                    },
+                    "resourceId": {
+                        "value": "[resourceId(variables('appInsightsInstances')[copyIndex()].ResourceGroupName, 'Microsoft.Insights/Components', variables('appInsightsInstances')[copyIndex()].ResourceName)]"
+                    },
+                    "actionGroupId": {
+                        "value": "[resourceId('microsoft.insights/actionGroups', variables('ActionGroupName'))]"
+                    }
+                }
+            },
+            "copy": {
+                "name": "AppInsightsToMonitorCopy",
+                "count": "[length(variables('appInsightsInstances'))]"
+            }
+        }
+    ]
+}
