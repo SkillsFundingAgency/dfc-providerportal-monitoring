@@ -360,7 +360,7 @@
                     "storageConnectionString": {
                         "value": "[parameters('storageConnectionString')]"
                     },
-                    "slackChannel": {
+                    "slackChannelName": {
                         "value": "[parameters('slackChannelName')]"
                     },
                     "slackWebHookToken": {
