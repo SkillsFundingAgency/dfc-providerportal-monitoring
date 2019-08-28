@@ -1,0 +1,24 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "instanceBaseName": {
+            "value": "__resourcePrefix__"
+        },
+        "storageConnectionString": {
+            "value": ""
+        },
+        "slackChannelName": {
+            "value": "__slackChannelName__"
+        },
+        "slackWebHookToken": {
+            "value": "__slackToken__"
+        },
+        "environment": {
+            "value": "__environment__"
+        },
+        "enableMonitoring": {
+            "value": __enableMonitoring__
+        } 
+    }
+}
