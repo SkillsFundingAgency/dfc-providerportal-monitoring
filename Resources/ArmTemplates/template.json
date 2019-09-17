@@ -480,7 +480,7 @@
                         "value": "0"
                     },
                     "aggregation": {
-                        "value": "Average"
+                        "value": "Count"
                     },
                     "windowSize": {
                         "value": "PT5M"
