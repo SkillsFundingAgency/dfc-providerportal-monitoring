@@ -492,7 +492,7 @@
                         "value": "[variables('ActionGroupName')]"
                     },
                     "resourceId": {
-                        "value": "[resourceId(variables('appInsightsInstances')[copyIndex()].ResourceGroupName, 'Microsoft.Insights/Components', variables('MetricsToAlertUpon')[copyIndex()].ResourceName)]"
+                        "value": "[resourceId(variables('appInsightsInstances')[copyIndex()].ResourceGroupName, 'Microsoft.Insights/Components', variables('appInsightsInstances')[copyIndex()].ResourceName)]"
                     }
                 }
             },
