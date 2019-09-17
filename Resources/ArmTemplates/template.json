@@ -318,7 +318,8 @@
                 "MetricName": "FunctionExecutionCount",
                 "Operator": "GreaterThanOrEqual",
                 "Threshold": "1000",
-                "TimeWindow": "PT5M"
+                "TimeWindow": "PT5M",
+                "Aggregation": "Total"
             },
             {
                 "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-rg')]",
