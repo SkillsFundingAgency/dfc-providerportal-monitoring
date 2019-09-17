@@ -465,7 +465,7 @@
                         "value": "[parameters('enableMonitoring')]"
                     },
                     "alertName": {
-                        "value": "[concat(variables('appInsightsInstances')[copyindex()].ResourceName, '-metric-', tolower(variables('appInsightsInstances')[copyIndex()].MetricName))]"
+                        "value": "[concat(variables('appInsightsInstances')[copyindex()].ResourceName, '-metric-exceptions')]"
                     },
                     "alertSeverity": {
                         "value": 3
