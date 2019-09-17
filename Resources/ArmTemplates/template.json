@@ -47,7 +47,7 @@
         "appInsightsInstances": [
             {
                 "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-apprent-rg')]",
-                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), 'prov-apprent-ai')]"
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-apprent-ai')]"
             },
             {
                 "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-cfl-rg')]",
@@ -93,7 +93,7 @@
         "MetricsToAlertUpon": [
             {
                 "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-apprent-rg')]",
-                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), 'prov-apprent-fa')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-apprent-fa')]",
                 "ResourceType": "Microsoft.Web/sites",
                 "MetricName": "Http5xx",
                 "Operator": "GreaterThanOrEqual",
@@ -103,7 +103,7 @@
             },
             {
                 "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-apprent-rg')]",
-                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), 'prov-apprent-fa')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-apprent-fa')]",
                 "ResourceType": "Microsoft.Web/sites",
                 "MetricName": "FunctionExecutionCount",
                 "Operator": "GreaterThanOrEqual",
