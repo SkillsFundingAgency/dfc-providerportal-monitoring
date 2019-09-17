@@ -513,7 +513,7 @@
                 },
                 "parameters": {
                     "alertName": {
-                        "value": "[variables('appInsightsInstances')[copyIndex().ResourceName]]"
+                        "value": "[variables('appInsightsInstances')[copyIndex()].ResourceName]"
                     },
                     "enabled": {
                         "value": "[parameters('enableMonitoring')]"
