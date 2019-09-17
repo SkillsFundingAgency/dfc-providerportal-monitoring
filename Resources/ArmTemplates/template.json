@@ -283,7 +283,7 @@
             },
             {
                 "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ukrlp-rg')]",
-                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ukrpl-fa')]",
+                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-ukrlp-fa')]",
                 "ResourceType": "Microsoft.Web/sites",
                 "MetricName": "Http5xx",
                 "Operator": "GreaterThanOrEqual",
