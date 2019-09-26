@@ -567,7 +567,6 @@
             "dependsOn": [
                 "[variables('ActionGroupName')]"
             ]
-
         },
         {
             "apiVersion": "2019-05-10",
@@ -619,7 +618,6 @@
             "dependsOn": [
                 "[variables('DataFactoryActionGroupName')]"
             ]
-
         }
     ]
 }
