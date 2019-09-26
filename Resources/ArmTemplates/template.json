@@ -43,6 +43,7 @@
     "variables": {
         "BuildingBlocksDfcBaseUrl": "https://raw.githubusercontent.com/SkillsFundingAgency/dfc-devops/master/ArmTemplates/",
         "ActionGroupName": "[concat(parameters('instanceBaseName'), '-actgrp')]",
+        "DataFactoryActionGroupName": "[concat(parameters('instanceBaseName'), '-df-actgrp')]",
         "lowerEnvironment": "[toLower(parameters('environment'))]",
         "createDataFactoryAlerts": "[or(equals(variables('lowerEnvironment'),'dev'), equals(variables('lowerEnvironment'), 'pp'))]",
         "dataFactoryName": "[concat('dfc-', variables('lowerEnvironment'), '-msql-df')]",
@@ -388,6 +389,33 @@
                         "value": "[variables('ActionGroupName')]"
                     },
                     "enabled": {
+                        "value": "[parameters('enableMonitoring')]"
+                    },
+                    "webHookUrl": {
+                        "value": "[reference('ppAzureMonitorSlackFunction').outputs.webHookUrl.value]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "ppAzureMonitorSlackFunction"
+            ]
+        },
+        {
+            "name": "[variables('DataFactoryActionGroupName')]",
+            "condition": "[variables('createDataFactoryAlerts')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-10",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/action-groups.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "actionGroupName": {
+                        "value": "[variables('DataFactoryActionGroupName')]"
+                    },
+                    "enabled": {
                         "value": "true"
                     },
                     "webHookUrl": {
@@ -581,7 +609,7 @@
                         "value": "PT1M"
                     },
                     "actionGroupName": {
-                        "value": "[variables('ActionGroupName')]"
+                        "value": "[variables('DataFactoryActionGroupName')]"
                     },
                     "resourceId": {
                         "value": "[resourceId(variables('dataFactoryResourceGroup'), 'Microsoft.DataFactory/factories', variables('dataFactoryName'))]"
@@ -589,7 +617,7 @@
                 }
             },
             "dependsOn": [
-                "[variables('ActionGroupName')]"
+                "[variables('DataFactoryActionGroupName')]"
             ]
 
         }
