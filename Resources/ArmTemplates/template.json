@@ -48,6 +48,8 @@
         "createDataFactoryAlerts": "[or(equals(variables('lowerEnvironment'),'dev'), equals(variables('lowerEnvironment'), 'pp'))]",
         "dataFactoryName": "[concat('dfc-', variables('lowerEnvironment'), '-msql-df')]",
         "dataFactoryResourceGroup": "[concat('dfc-', variables('lowerEnvironment'), '-msql-rg')]",
+        "aspResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), if(equals(variables('lowerEnvironment'), 'pp'), '-prov-shared-rg', '-prov-rg'))]",
+        "aspResourceName": "[concat('dfc-', variables('lowerEnvironment'), if(equals(variables('lowerEnvironment'), 'pp'), '-prov-shared-rg', '-prov-rg'))]",
         "appInsightsInstances": [
             {
                 "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-apprent-rg')]",
@@ -326,8 +328,8 @@
                 "Aggregation": "Total"
             },
             {
-                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-rg')]",
-                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-asp')]",
+                "ResourceGroupName": "[variables('aspResourceGroupName')]",
+                "ResourceName": "[variables('aspResourceName')]",
                 "ResourceType": "Microsoft.Web/serverFarms",
                 "MetricName": "CpuPercentage",
                 "Operator": "GreaterThanOrEqual",
@@ -336,12 +338,22 @@
                 "Aggregation": "Average"
             },
             {
-                "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-rg')]",
-                "ResourceName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-asp')]",
+                "ResourceGroupName": "[variables('aspResourceGroupName')]",
+                "ResourceName": "[variables('aspResourceName')]",
                 "ResourceType": "Microsoft.Web/serverFarms",
                 "MetricName": "MemoryPercentage",
                 "Operator": "GreaterThanOrEqual",
                 "Threshold": "75",
+                "TimeWindow": "PT5M",
+                "Aggregation": "Average"
+            },
+            {
+                "ResourceGroupName": "[variables('aspResourceGroupName')]",
+                "ResourceName": "[variables('aspResourceName')]",
+                "ResourceType": "Microsoft.Web/serverFarms",
+                "MetricName": "TcpEstablished",
+                "Operator": "GreaterThanOrEqual",
+                "Threshold": "500",
                 "TimeWindow": "PT5M",
                 "Aggregation": "Average"
             }
