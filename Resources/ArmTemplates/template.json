@@ -49,7 +49,7 @@
         "dataFactoryName": "[concat('dfc-', variables('lowerEnvironment'), '-msql-df')]",
         "dataFactoryResourceGroup": "[concat('dfc-', variables('lowerEnvironment'), '-msql-rg')]",
         "aspResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), if(equals(variables('lowerEnvironment'), 'pp'), '-prov-shared-rg', '-prov-rg'))]",
-        "aspResourceName": "[concat('dfc-', variables('lowerEnvironment'), if(equals(variables('lowerEnvironment'), 'pp'), '-prov-shared-rg', '-prov-rg'))]",
+        "aspResourceName": "[concat('dfc-', variables('lowerEnvironment'), if(equals(variables('lowerEnvironment'), 'pp'), '-prov-shared-asp', '-prov-asp'))]",
         "appInsightsInstances": [
             {
                 "ResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-apprent-rg')]",
