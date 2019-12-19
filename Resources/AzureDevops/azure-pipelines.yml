@@ -19,8 +19,8 @@ pr:
     - master
 
 stages:
-- stage: Build
-  displayName: Build, Test and Analyze
+- stage: BuildAndTest
+  displayName: Build, And Test
   jobs:
   - job: BuildTestAndAnalyze
     pool:
