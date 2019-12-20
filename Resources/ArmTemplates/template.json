@@ -43,6 +43,8 @@
     "variables": {
         "BuildingBlocksDfcBaseUrl": "https://raw.githubusercontent.com/SkillsFundingAgency/dfc-devops/master/ArmTemplates/",
         "ActionGroupName": "[concat(parameters('instanceBaseName'), '-actgrp')]",
+        "DataFactoryActionGroupName": "[concat(parameters('instanceBaseName'), '-df-actgrp')]",
+        "createDataFactoryActionGroup": "[or(equals(variables('lowerEnvironment'),'dev'), equals(variables('lowerEnvironment'), 'pp'))]",
         "lowerEnvironment": "[toLower(parameters('environment'))]",
         "aspResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-rg')]",
         "aspResourceName": "[concat('dfc-', variables('lowerEnvironment'), if(equals(variables('lowerEnvironment'), 'pp'), '-prov-shared-asp', '-prov-asp'))]",
@@ -547,6 +549,33 @@
             },
             "dependsOn": [
                 "[variables('ActionGroupName')]"
+            ]
+        },
+        {
+            "name": "[variables('DataFactoryActionGroupName')]",
+            "condition": "[variables('createDataFactoryActionGroup')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-10",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/action-groups.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "actionGroupName": {
+                        "value": "[variables('DataFactoryActionGroupName')]"
+                    },
+                    "enabled": {
+                        "value": true
+                    },
+                    "webHookUrl": {
+                        "value": "[reference('ppAzureMonitorSlackFunction').outputs.webHookUrl.value]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "ppAzureMonitorSlackFunction"
             ]
         }
     ]
