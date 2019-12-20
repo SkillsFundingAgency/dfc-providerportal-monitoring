@@ -48,7 +48,7 @@
         "createDataFactoryAlerts": "[or(equals(variables('lowerEnvironment'),'dev'), equals(variables('lowerEnvironment'), 'pp'))]",
         "dataFactoryName": "[concat('dfc-', variables('lowerEnvironment'), '-msql-df')]",
         "dataFactoryResourceGroup": "[concat('dfc-', variables('lowerEnvironment'), '-msql-rg')]",
-        "aspResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), if(equals(variables('lowerEnvironment'), 'pp'), '-prov-shared-rg', '-prov-rg'))]",
+        "aspResourceGroupName": "[concat('dfc-', variables('lowerEnvironment'), '-prov-rg')]",
         "aspResourceName": "[concat('dfc-', variables('lowerEnvironment'), if(equals(variables('lowerEnvironment'), 'pp'), '-prov-shared-asp', '-prov-asp'))]",
         "appInsightsInstances": [
             {
