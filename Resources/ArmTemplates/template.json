@@ -605,7 +605,7 @@
                         "value": "PipelineFailedRuns"
                     },
                     "operator": {
-                        "value": "GreaterThanOrEqual"
+                        "value": "GreaterThan"
                     },
                     "threshold": {
                         "value": "0"
