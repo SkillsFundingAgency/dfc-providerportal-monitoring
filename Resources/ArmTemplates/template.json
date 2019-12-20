@@ -555,7 +555,7 @@
             "name": "[variables('DataFactoryActionGroupName')]",
             "condition": "[variables('createDataFactoryActionGroup')]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-05-10",
+            "apiVersion": "2019-05-01",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
