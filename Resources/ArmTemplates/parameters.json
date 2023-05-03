@@ -6,7 +6,7 @@
             "value": "__resourcePrefix__"
         },
         "storageConnectionString": {
-            "value": "__providerPortalStorageConnectionStr__"
+            "value": "__providerPortalMonitoringStorageConnectionStr__"
         },
         "slackChannelName": {
             "value": "__slackChannelName__"
